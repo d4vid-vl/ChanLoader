@@ -1,4 +1,4 @@
-package image
+package custom
 
 import (
 	"io"
@@ -8,7 +8,7 @@ import (
 	"github.com/sunshineplan/imgconv"
 )
 
-func convertImage(path string, format string) string {
+func ConvertImage(path string, format string) string {
 	src, err := imgconv.Open(path)
 	if err != nil {
 		log.Fatalf("failed to open image: %v", err)
