@@ -21,10 +21,19 @@ func scrapeurl(url string, id string) []Post {
 			post.OP = false
 		}
 
-		post.Subject = h.ChildText(".subject")
+		subject_list := h.ChildTexts(".subject")
+		if subject_list != nil {
+			post.Subject = subject_list[0]
+		} else {
+			post.Subject = ""
+		}
+
+		name_list := h.ChildTexts(".name")
+		date_list := h.ChildTexts(".dateTime")
+
 		post.Media = h.ChildAttr("a.fileThumb", "href")
-		post.Name = h.ChildText(".name")
-		post.Date = h.ChildText(".dateTime")
+		post.Name = name_list[0]
+		post.Date = date_list[0]
 		post.PostID = h.ChildAttr("blockquote", "id")
 		post.Message = h.ChildText(".postMessage")
 
