@@ -10,6 +10,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/spf13/cobra"
 
+	"ChanLoader/cmd/custom"
 	"ChanLoader/cmd/ui/textinput"
 )
 
@@ -31,7 +32,7 @@ type cfg struct {
 // ? Struct to save each individual post in the thread
 type Post struct {
 	OP                                          bool
-	Subject, Image, Name, Date, PostID, Message string
+	Subject, Media, Name, Date, PostID, Message string
 }
 
 func init() {
@@ -107,9 +108,13 @@ func download(cmd *cobra.Command, args []string) {
 	}
 
 	// * Scraping state
-	test := scrapeurl(cfg.Url, cfg.ThreadID)
-	for i := 0; i < len(test); i++ {
-		// TODO: Name -> Image -> Video
-		// TODO: Create name downloader and video converter
+	// TODO: Download -> Name -> Image -> Video
+	// TODO: Create name downloader and video converter
+	posts := scrapeurl(cfg.Url, cfg.ThreadID)
+	var files []string
+	for i := 0; i < len(posts)-1; i++ {
+		post := posts[i]
+		file := custom.NameFiles(thread_path, post.Media, config.Name.String(), post.PostID)
+		files = append(files, file)
 	}
 }
