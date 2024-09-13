@@ -22,7 +22,7 @@ func scrapeurl(url string, id string) []Post {
 		}
 
 		post.Subject = h.ChildText(".subject")
-		post.Image = h.ChildAttr("a.fileThumb", "href")
+		post.Media = h.ChildAttr("a.fileThumb", "href")
 		post.Name = h.ChildText(".name")
 		post.Date = h.ChildText(".dateTime")
 		post.PostID = h.ChildAttr("blockquote", "id")
