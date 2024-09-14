@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"ChanLoader/cmd/flags"
@@ -59,9 +60,18 @@ func init() {
 }
 
 func configurate(cmd *cobra.Command, args []string) {
+	// Get the current working directory
+	currentPath, err_c := os.Getwd()
+	if err_c != nil {
+		log.Fatal(err_c)
+	}
 
-	// VarP already validates the contents of the framework flag.
-	// If this flag is filled, it is always valid
+	// Get the absolute path
+	absPath, err_path := filepath.Abs(currentPath)
+	if err_path != nil {
+		log.Fatal(err_path)
+	}
+
 	flagPath := cmd.Flag("path").Value.String()
 	flagIExtension := flags.IExtension(cmd.Flag("image").Value.String())
 	flagVExtension := flags.VExtension(cmd.Flag("video").Value.String())
@@ -147,7 +157,12 @@ func configurate(cmd *cobra.Command, args []string) {
 
 	bytes, _ := json.MarshalIndent(ConfigData, "", "  ")
 
-	configDataFile := "config/ConfigData.json"
+	configDataFile := absPath + "/config/"
+	err_convert_path := os.MkdirAll(configDataFile, os.ModePerm)
+	if err_convert_path != nil {
+		log.Fatal("Error creating converting config folder \n", err_convert_path)
+	}
+	configDataFile += "ConfigData.json"
 	// Revisa si el archivo JSON está creado
 	if _, err := os.Stat(configDataFile); err == nil { // En caso de estar creado
 		// Abre el archivo y borra los contenidos de este

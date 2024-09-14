@@ -5,13 +5,14 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/spf13/cobra"
 
-	"ChanLoader/cmd/custom"
 	"ChanLoader/cmd/ui/textinput"
+	"ChanLoader/custom"
 )
 
 var downloadCmd = &cobra.Command{
@@ -45,10 +46,25 @@ func init() {
 }
 
 func download(cmd *cobra.Command, args []string) {
+	// Get the current working directory
+	currentPath, err_c := os.Getwd()
+	if err_c != nil {
+		log.Fatal(err_c)
+	}
 
+	// Get the absolute path
+	absPath, err_path := filepath.Abs(currentPath)
+	if err_path != nil {
+		log.Fatal(err_path)
+	}
 	// * Init
 	flagURL := cmd.Flag("url").Value.String()
-	config_path := "config/ConfigData.json"
+	config_path := absPath + "/config/"
+	err_convert_path := os.MkdirAll(config_path, os.ModePerm)
+	if err_convert_path != nil {
+		log.Fatal("Error creating converting config folder \n", err_convert_path)
+	}
+	config_path += "ConfigData.json"
 
 	save := Save{
 		Url: &textinput.Output{},
