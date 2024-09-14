@@ -61,13 +61,10 @@ func init() {
 
 func configurate(cmd *cobra.Command, args []string) {
 	var separator string
-	var configDataFile string
 	if runtime.GOOS == "windows" {
 		separator = "\\"
-		configDataFile = separator + "config" + separator + "ConfigData.json"
 	} else {
 		separator = "/"
-		configDataFile = "config" + separator + "ConfigData.json"
 	}
 
 	flagPath := cmd.Flag("path").Value.String()
@@ -155,6 +152,7 @@ func configurate(cmd *cobra.Command, args []string) {
 
 	bytes, _ := json.MarshalIndent(ConfigData, "", "  ")
 
+	configDataFile := "config" + separator + "ConfigData.json"
 	// Revisa si el archivo JSON está creado
 	if _, err := os.Stat(configDataFile); err == nil { // En caso de estar creado
 		// Abre el archivo y borra los contenidos de este
