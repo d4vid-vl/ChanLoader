@@ -137,7 +137,7 @@ func download(cmd *cobra.Command, args []string) {
 	var files []string
 	for i := 0; i < len(posts)-1; i++ {
 		post := posts[i]
-		file := custom.NameFiles(thread_path, post.Media, config.Name.String(), post.PostID)
+		file := custom.NameFiles(thread_path, post.Media, config.Name.String(), post.PostID, i+1)
 		files = append(files, file)
 	}
 
