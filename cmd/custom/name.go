@@ -5,12 +5,17 @@ import (
 	"strings"
 
 	"github.com/imroc/req"
+	"github.com/schollz/progressbar/v3"
 )
 
 func NameFiles(path string, url string, nameformat string, id string) string {
 	if url != "" {
+
+		bar := progressbar.DefaultBytes(-1, "Downloading...")
 		progress := func(current, total int64) {
-			fmt.Println(float32(current)/float32(total)*100, "%")
+			//fmt.Println(float32(current)/float32(total)*100, "%")
+			bar.ChangeMax64(total)
+			bar.Set64(current)
 		}
 		name := "/"
 		url_split := strings.SplitAfter(url, ".")
@@ -36,6 +41,7 @@ func NameFiles(path string, url string, nameformat string, id string) string {
 		fmt.Println("File saved in: " + new_path)
 		return new_path
 	} else {
+		fmt.Println("No media found in post: " + id)
 		return "No media found in post: " + id
 	}
 }
