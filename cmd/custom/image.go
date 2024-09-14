@@ -3,26 +3,20 @@ package custom
 import (
 	"log"
 	"os"
-	"runtime"
 	"strings"
 
 	ffmpeg "github.com/u2takey/ffmpeg-go"
 )
 
 func ConvertImage(path string, format string) string {
-	var separator string
-	if runtime.GOOS == "windows" {
-		separator = "\\"
-	} else {
-		separator = "/"
-	}
+
 	// * Create the new path
-	file_path := strings.SplitAfter(path, separator)
+	file_path := strings.SplitAfter(path, "/")
 	var convert_path string
 	for i := 0; i < len(file_path)-1; i++ {
 		convert_path += file_path[i]
 	}
-	convert_path += "Images" + separator
+	convert_path += "Images/"
 	err_convert_path := os.MkdirAll(convert_path, os.ModePerm)
 	if err_convert_path != nil {
 		log.Fatal("Error creating converting images folder \n", err_convert_path)

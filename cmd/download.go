@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"runtime"
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -46,16 +45,10 @@ func init() {
 }
 
 func download(cmd *cobra.Command, args []string) {
-	var separator string
-	if runtime.GOOS == "windows" {
-		separator = "\\"
-	} else {
-		separator = "/"
-	}
 
 	// * Init
 	flagURL := cmd.Flag("url").Value.String()
-	config_path := "config" + separator + "ConfigData.json"
+	config_path := "config/ConfigData.json"
 
 	save := Save{
 		Url: &textinput.Output{},
@@ -84,7 +77,7 @@ func download(cmd *cobra.Command, args []string) {
 		log.Fatal("Url given is not a valid 4chan thread. (Not a thread)")
 	}
 
-	split_url := strings.Split(cfg.Url, separator)
+	split_url := strings.Split(cfg.Url, "/")
 
 	// ! Save Board and Thread ID info
 	for i := 0; i < len(split_url); i++ {
@@ -111,12 +104,12 @@ func download(cmd *cobra.Command, args []string) {
 
 	// ! Create board and thread folder
 	posts := scrapeurl(cfg.Url, cfg.ThreadID)
-	cfg.ThreadName = strings.ReplaceAll(posts[0].Subject, separator, "!")
+	cfg.ThreadName = strings.ReplaceAll(posts[0].Subject, "/", "!")
 	var thread_path string
 	if cfg.ThreadName != "" {
-		thread_path = cfg.Path + separator + cfg.Board + separator + cfg.ThreadID + " - " + cfg.ThreadName
+		thread_path = cfg.Path + "/" + cfg.Board + "/" + cfg.ThreadID + " - " + cfg.ThreadName
 	} else {
-		thread_path = cfg.Path + separator + cfg.Board + separator + cfg.ThreadID + " - " + "Untitled Thread"
+		thread_path = cfg.Path + "/" + cfg.Board + "/" + cfg.ThreadID + " - " + "Untitled Thread"
 	}
 	err_thread_path := os.MkdirAll(thread_path, os.ModePerm)
 	if err_thread_path != nil {

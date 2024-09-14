@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"runtime"
 	"strings"
 
 	"ChanLoader/cmd/flags"
@@ -60,13 +59,9 @@ func init() {
 }
 
 func configurate(cmd *cobra.Command, args []string) {
-	var separator string
-	if runtime.GOOS == "windows" {
-		separator = "\\"
-	} else {
-		separator = "/"
-	}
 
+	// VarP already validates the contents of the framework flag.
+	// If this flag is filled, it is always valid
 	flagPath := cmd.Flag("path").Value.String()
 	flagIExtension := flags.IExtension(cmd.Flag("image").Value.String())
 	flagVExtension := flags.VExtension(cmd.Flag("video").Value.String())
@@ -152,7 +147,7 @@ func configurate(cmd *cobra.Command, args []string) {
 
 	bytes, _ := json.MarshalIndent(ConfigData, "", "  ")
 
-	configDataFile := "config" + separator + "ConfigData.json"
+	configDataFile := "config/ConfigData.json"
 	// Revisa si el archivo JSON está creado
 	if _, err := os.Stat(configDataFile); err == nil { // En caso de estar creado
 		// Abre el archivo y borra los contenidos de este
