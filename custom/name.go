@@ -2,13 +2,15 @@ package custom
 
 import (
 	"fmt"
+	"math/rand"
+	"strconv"
 	"strings"
 
 	"github.com/imroc/req"
 	"github.com/schollz/progressbar/v3"
 )
 
-func NameFiles(path string, url string, nameformat string, id string) string {
+func NameFiles(path string, url string, nameformat string, id string, time int) string {
 	if url != "" {
 
 		bar := progressbar.DefaultBytes(-1, "Downloading...")
@@ -22,13 +24,19 @@ func NameFiles(path string, url string, nameformat string, id string) string {
 		file_split := strings.Split(url_split[len(url_split)-2], "/")
 
 		if nameformat == "numeric" {
-			name += url_split[len(url_split)-2]
+			times := strconv.Itoa(time)
+			name += times + "."
 		} else if nameformat == "alphabetic" {
-			name += url_split[len(url_split)-2]
+			name += url_split[len(url_split)-1]
 		} else if nameformat == "id" {
 			name += id + "."
 		} else if nameformat == "random" {
-			name += url_split[len(url_split)-2]
+			charset := "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890"
+			temp := make([]byte, 12)
+			for i := range temp {
+				temp[i] = charset[rand.Intn(len(charset))]
+			}
+			name += string(temp[:]) + "."
 		} else if nameformat == "original" {
 			name += file_split[len(file_split)-1]
 		}
