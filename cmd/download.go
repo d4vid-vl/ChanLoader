@@ -98,10 +98,18 @@ func download(cmd *cobra.Command, args []string) {
 		fmt.Println("Couldn't read json file", err)
 	}
 	cfg.Path = config.Path
-	fmt.Println(cfg)
 
 	// ! Create board and thread folder
-	thread_path := cfg.Path + "/" + cfg.Board + "/" + cfg.ThreadID
+	posts := scrapeurl(cfg.Url, cfg.ThreadID)
+	cfg.ThreadName = strings.ReplaceAll(posts[0].Subject, "/", "!")
+	fmt.Println(cfg)
+	fmt.Println(posts[0])
+	var thread_path string
+	if cfg.ThreadName != "" {
+		thread_path = cfg.Path + "/" + cfg.Board + "/" + cfg.ThreadID + " - " + cfg.ThreadName
+	} else {
+		thread_path = cfg.Path + "/" + cfg.Board + "/" + cfg.ThreadID + " - " + "Untitled Thread"
+	}
 	err_thread_path := os.MkdirAll(thread_path, os.ModePerm)
 	if err_thread_path != nil {
 		log.Fatal("Error creating thread folder \n", err_thread_path)
@@ -110,11 +118,11 @@ func download(cmd *cobra.Command, args []string) {
 	// * Scraping state
 	// TODO: Download -> Name -> Image -> Video
 	// TODO: Create name downloader and video converter
-	posts := scrapeurl(cfg.Url, cfg.ThreadID)
 	var files []string
 	for i := 0; i < len(posts)-1; i++ {
 		post := posts[i]
 		file := custom.NameFiles(thread_path, post.Media, config.Name.String(), post.PostID)
 		files = append(files, file)
 	}
+	fmt.Println("All files have been downloaded successfully!")
 }
