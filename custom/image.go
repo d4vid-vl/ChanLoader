@@ -57,6 +57,11 @@ func ConvertImage(path string, format string) string {
 			// TODO: Remove the println
 			return new_path
 
+		} else if path_format[len(path_format)-1] == "gif" {
+			// * Move original file to images
+			if err := os.Rename(path, convert_path); err != nil {
+			}
+			return convert_path
 		} else {
 			// * Move original file to images
 			if err := os.Rename(path, convert_path); err != nil {
