@@ -16,9 +16,12 @@ import (
 
 var downloadCmd = &cobra.Command{
 	Use:   "download",
-	Short: "",
-	Long:  "",
-	Run:   download,
+	Short: "Download a thread",
+	Long: `Download a thread by simply:
+- Calling the command
+- Pasting the link of thread you want
+- Declare if you want a verbose or "quiet" download`,
+	Run: download,
 }
 
 // ? Structs to save configurations of the program
@@ -114,13 +117,27 @@ func download(cmd *cobra.Command, args []string) {
 	}
 
 	// * Scraping state
-	// TODO: Download -> Name -> Image -> Video
-	// TODO: Create name downloader and video converter
+	// TODO: Make useful name types
 	var files []string
 	for i := 0; i < len(posts)-1; i++ {
 		post := posts[i]
 		file := custom.NameFiles(thread_path, post.Media, config.Name.String(), post.PostID)
 		files = append(files, file)
 	}
+
+	// * Convert images and videos
+	var images []string
+	for i := 0; i < len(files); i++ {
+		file := files[i]
+		image := custom.ConvertImage(file, config.IExtension.String())
+		images = append(images, image)
+	}
+	var videos []string
+	for i := 0; i < len(files); i++ {
+		file := files[i]
+		video := custom.ConvertVideo(file, config.VExtension.String())
+		videos = append(videos, video)
+	}
+
 	fmt.Println("All files have been downloaded successfully!")
 }
