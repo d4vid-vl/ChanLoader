@@ -24,7 +24,6 @@ func ConvertImage(path string, format string) string {
 	convert_path += file_path[len(file_path)-1] // New path with old file
 
 	path_format := strings.SplitAfter(convert_path, ".")
-
 	var new_path string
 	for i := 0; i < len(path_format)-1; i++ {
 		new_path += path_format[i]
@@ -57,17 +56,16 @@ func ConvertImage(path string, format string) string {
 			// TODO: Remove the println
 			return new_path
 
-		} else if path_format[len(path_format)-1] == "gif" {
-			// * Move original file to images
-			if err := os.Rename(path, convert_path); err != nil {
-			}
-			return convert_path
 		} else {
 			// * Move original file to images
 			if err := os.Rename(path, convert_path); err != nil {
 			}
 			return convert_path
 		}
+	} else if path_format[len(path_format)-1] == "gif" {
+		if err := os.Rename(path, convert_path); err != nil {
+		}
+		return convert_path
 	} else {
 		return ""
 	}
