@@ -102,8 +102,6 @@ func download(cmd *cobra.Command, args []string) {
 	// ! Create board and thread folder
 	posts := scrapeurl(cfg.Url, cfg.ThreadID)
 	cfg.ThreadName = strings.ReplaceAll(posts[0].Subject, "/", "!")
-	fmt.Println(cfg)
-	fmt.Println(posts[0])
 	var thread_path string
 	if cfg.ThreadName != "" {
 		thread_path = cfg.Path + "/" + cfg.Board + "/" + cfg.ThreadID + " - " + cfg.ThreadName
