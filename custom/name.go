@@ -27,7 +27,7 @@ func NameFiles(path string, url string, nameformat string, id string, time int) 
 			times := strconv.Itoa(time)
 			name += times + "."
 		} else if nameformat == "alphabetic" {
-			name += url_split[len(url_split)-1]
+			name += _alphabetic(time) + "."
 		} else if nameformat == "id" {
 			name += id + "."
 		} else if nameformat == "random" {
@@ -52,4 +52,14 @@ func NameFiles(path string, url string, nameformat string, id string, time int) 
 		fmt.Println("No media found in post: " + id)
 		return "No media found in post: " + id
 	}
+}
+
+func _alphabetic(n int) string {
+	result := ""
+	for n > 0 {
+		remainder := (n - 1) % 26
+		result = string('a'+remainder) + result
+		n = (n - 1) / 26
+	}
+	return result
 }
