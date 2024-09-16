@@ -9,10 +9,27 @@ import (
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/spf13/cobra"
 
 	"ChanLoader/cmd/ui/textinput"
 	"ChanLoader/custom"
+)
+
+var (
+	successStyle = lipgloss.NewStyle().
+			Background(lipgloss.Color("#247D24")).
+			Foreground(lipgloss.Color("#ffffff")).
+			Bold(true).
+			Align(lipgloss.Center).
+			BorderStyle(lipgloss.RoundedBorder()).
+			BorderForeground(lipgloss.Color("#ffffff"))
+
+	verboseStyle = lipgloss.NewStyle().
+			Background(lipgloss.Color("#898989")).
+			Foreground(lipgloss.Color("#ffffff")).
+			BorderStyle(lipgloss.RoundedBorder()).
+			BorderForeground(lipgloss.Color("#636363"))
 )
 
 var downloadCmd = &cobra.Command{
@@ -59,12 +76,12 @@ func download(cmd *cobra.Command, args []string) {
 	}
 	// * Init
 	flagURL := cmd.Flag("url").Value.String()
-	config_path := absPath + "/config/"
+	config_path := filepath.Join(absPath, "config")
 	err_convert_path := os.MkdirAll(config_path, os.ModePerm)
 	if err_convert_path != nil {
 		log.Fatal("Error creating converting config folder \n", err_convert_path)
 	}
-	config_path += "ConfigData.json"
+	config_path = filepath.Join(config_path, "ConfigData.json")
 
 	save := Save{
 		Url: &textinput.Output{},
@@ -123,9 +140,9 @@ func download(cmd *cobra.Command, args []string) {
 	cfg.ThreadName = strings.ReplaceAll(posts[0].Subject, "/", "!")
 	var thread_path string
 	if cfg.ThreadName != "" {
-		thread_path = cfg.Path + "/" + cfg.Board + "/" + cfg.ThreadID + " - " + cfg.ThreadName
+		thread_path = filepath.Join(cfg.Path, cfg.Board, cfg.ThreadID+" - "+cfg.ThreadName)
 	} else {
-		thread_path = cfg.Path + "/" + cfg.Board + "/" + cfg.ThreadID + " - " + "Untitled Thread"
+		thread_path = filepath.Join(cfg.Path, cfg.Board, cfg.ThreadID+" - "+"Untitled Thread")
 	}
 	err_thread_path := os.MkdirAll(thread_path, os.ModePerm)
 	if err_thread_path != nil {
@@ -133,27 +150,39 @@ func download(cmd *cobra.Command, args []string) {
 	}
 
 	// * Scraping state
-	// TODO: Make useful name types
 	var files []string
 	for i := 0; i < len(posts)-1; i++ {
 		post := posts[i]
 		file := custom.NameFiles(thread_path, post.Media, config.Name.String(), post.PostID, i+1)
 		files = append(files, file)
+		fmt.Println("\n" + verboseStyle.Render(file))
 	}
 
 	// * Convert images and videos
 	var images []string
 	for i := 0; i < len(files); i++ {
 		file := files[i]
-		image := custom.ConvertImage(file, config.IExtension.String())
-		images = append(images, image)
+		if strings.Contains(file, "No media found in post:") {
+			i++
+		} else if file == "" {
+			i++
+		} else {
+			image := custom.ConvertImage(file, config.IExtension.String())
+			images = append(images, image)
+		}
 	}
 	var videos []string
 	for i := 0; i < len(files); i++ {
 		file := files[i]
-		video := custom.ConvertVideo(file, config.VExtension.String())
-		videos = append(videos, video)
+		if strings.Contains(file, "No media found in post:") {
+			i++
+		} else if file == "" {
+			i++
+		} else {
+			video := custom.ConvertVideo(file, config.VExtension.String())
+			videos = append(videos, video)
+		}
 	}
 
-	fmt.Println("All files have been downloaded successfully!")
+	fmt.Println(successStyle.Render("All files have been downloaded successfully! ✓"))
 }
