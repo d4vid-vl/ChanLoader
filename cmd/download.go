@@ -168,6 +168,9 @@ func download(cmd *cobra.Command, args []string) {
 			i++
 		} else {
 			image := custom.ConvertImage(file, config.IExtension.String())
+			if image == "" {
+				i++
+			}
 			images = append(images, image)
 		}
 	}
@@ -176,10 +179,11 @@ func download(cmd *cobra.Command, args []string) {
 		file := files[i]
 		if strings.Contains(file, "No media found in post:") {
 			i++
-		} else if file == "" {
-			i++
 		} else {
 			video := custom.ConvertVideo(file, config.VExtension.String())
+			if video == "" {
+				i++
+			}
 			videos = append(videos, video)
 		}
 	}
