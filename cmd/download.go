@@ -103,22 +103,35 @@ func download(cmd *cobra.Command, args []string) {
 		log.Fatal("failed to set the url flag value \n", err)
 	}
 
-	// * Check if it is a valid 4Chan thread link
-	if !strings.Contains(cfg.Url, "boards.4chan.org") {
-		log.Fatal("Url given is not a valid 4chan thread. (Invalid link)")
+	// * Check if it is a valid thread link
+	valid_link := false
+	for i := 0; i < len(domains); i++ {
+		if strings.Contains(cfg.Url, domains[i]) {
+			valid_link = true
+		}
+	}
+	if valid_link == false {
+		log.Fatal("Url given is not a valid thread. (Invalid link)")
 	} else if !strings.Contains(cfg.Url, "thread") {
-		log.Fatal("Url given is not a valid 4chan thread. (Not a thread)")
+		log.Fatal("Url given is not a valid thread. (Not a thread)")
 	}
 
 	split_url := strings.Split(cfg.Url, "/")
 
+	fmt.Println(split_url)
 	// ! Save Board and Thread ID info
-	for i := 0; i < len(split_url); i++ {
+	var domain string
+	for i := 0; i < len(split_url)-1; i++ {
 		check := split_url[i]
-		if check == "boards.4chan.org" {
+		if check == "https:" {
+			domain = split_url[i+2]
+			fmt.Println(domain)
+		} else if check == domain {
 			cfg.Board = split_url[i+1]
+			fmt.Println(cfg.Board)
 		} else if check == "thread" {
 			cfg.ThreadID = split_url[i+1]
+			fmt.Println(cfg.ThreadID)
 		} else {
 			continue
 		}
@@ -135,6 +148,7 @@ func download(cmd *cobra.Command, args []string) {
 	}
 	cfg.Path = config.Path
 
+	// TODO: Support more archive sites
 	// ! Create board and thread folder
 	posts := scrapeurl(cfg.Url, cfg.ThreadID)
 	cfg.ThreadName = strings.ReplaceAll(posts[0].Subject, "/", "!")

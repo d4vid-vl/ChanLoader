@@ -6,9 +6,11 @@ import (
 	"github.com/gocolly/colly/v2"
 )
 
+var domains = []string{"boards.4chan.org", "archived.moe"}
+
 func scrapeurl(url string, id string) []Post {
 	c := colly.NewCollector(
-		colly.AllowedDomains("boards.4chan.org"),
+		colly.AllowedDomains(domains...),
 	)
 	var posts []Post
 
