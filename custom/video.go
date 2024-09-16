@@ -3,6 +3,7 @@ package custom
 import (
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
 
 	ffmpeg "github.com/u2takey/ffmpeg-go"
@@ -10,31 +11,25 @@ import (
 
 func ConvertVideo(path string, format string) string {
 
-	// * Create the new path
-	file_path := strings.SplitAfter(path, "/")
-	var convert_path string
-	for i := 0; i < len(file_path)-1; i++ {
-		convert_path += file_path[i]
-	}
-	convert_path += "Videos/"
+	// Split path to find folder and file parts
+	dir := filepath.Dir(path)
+	file := filepath.Base(path)
+
+	// Define the new folder for images
+	convert_path := filepath.Join(dir, "Videos")
 	err_convert_path := os.MkdirAll(convert_path, os.ModePerm)
 	if err_convert_path != nil {
 		log.Fatal("Error creating converting videos folder \n", err_convert_path)
 	}
-	convert_path += file_path[len(file_path)-1] // New path with old file
+	// Get the file without its extension and create a new path
+	filename_without_ext := strings.TrimSuffix(file, filepath.Ext(file))
+	new_path := filepath.Join(convert_path, filename_without_ext+"."+format)
 
-	path_format := strings.SplitAfter(convert_path, ".")
-
-	var new_path string
-	for i := 0; i < len(path_format)-1; i++ {
-		new_path += path_format[i]
-	}
-	new_path += format // New path with new file
-
-	// * Check if the format is a video format
-	if path_format[len(path_format)-1] == "mp4" || path_format[len(path_format)-1] == "avi" || path_format[len(path_format)-1] == "webm" {
-		if path_format[len(path_format)-1] != format {
-			// * Convertion
+	// Check if the format is a video format
+	if filepath.Ext(path) == ".mp4" || filepath.Ext(path) == ".avi" || filepath.Ext(path) == ".webm" {
+		// Check video format and convert
+		if filepath.Ext(path) != "."+format {
+			// Convertion
 			if format == "mp4" {
 				err := ffmpeg.Input(path).Output(new_path, ffmpeg.KwArgs{"loglevel": "panic"}).OverWriteOutput().ErrorToStdOut().Run()
 				if err != nil {
@@ -49,18 +44,20 @@ func ConvertVideo(path string, format string) string {
 				}
 			}
 
-			// * Remove the original file
-			if err := os.Remove(path); err != nil {
+			// Remove the original file
+			err_remove := os.Remove(path)
+			if err_remove != nil {
+				log.Fatal("Error removing original file: ", err_remove)
 			}
-			// TODO: Remove the println
 			return new_path
-		} else {
-			// * Move original file to images
-			if err := os.Rename(path, convert_path); err != nil {
-			}
-			return convert_path
 		}
-	} else {
-		return ""
+		// Move original file to Videos folder if no conversion needed
+		err_rename := os.Rename(path, filepath.Join(convert_path, file))
+		if err_rename != nil {
+			log.Fatal("Error moving original file: ", err_rename)
+		}
+		return filepath.Join(convert_path, file)
 	}
+	return ""
+
 }

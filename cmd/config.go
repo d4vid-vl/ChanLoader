@@ -157,12 +157,12 @@ func configurate(cmd *cobra.Command, args []string) {
 
 	bytes, _ := json.MarshalIndent(ConfigData, "", "  ")
 
-	configDataFile := absPath + "/config/"
+	configDataFile := filepath.Join(absPath, "config")
 	err_convert_path := os.MkdirAll(configDataFile, os.ModePerm)
 	if err_convert_path != nil {
 		log.Fatal("Error creating converting config folder \n", err_convert_path)
 	}
-	configDataFile += "ConfigData.json"
+	configDataFile = filepath.Join(configDataFile, "ConfigData.json")
 	// Revisa si el archivo JSON está creado
 	if _, err := os.Stat(configDataFile); err == nil { // En caso de estar creado
 		// Abre el archivo y borra los contenidos de este

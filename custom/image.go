@@ -3,6 +3,7 @@ package custom
 import (
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
 
 	ffmpeg "github.com/u2takey/ffmpeg-go"
@@ -10,32 +11,25 @@ import (
 
 func ConvertImage(path string, format string) string {
 
-	// * Create the new path
-	file_path := strings.SplitAfter(path, "/")
-	var convert_path string
-	for i := 0; i < len(file_path)-1; i++ {
-		convert_path += file_path[i]
-	}
-	convert_path += "Images/"
+	// Split path to find folder and file parts
+	dir := filepath.Dir(path)
+	file := filepath.Base(path)
+
+	// Define the new folder for images
+	convert_path := filepath.Join(dir, "Images")
 	err_convert_path := os.MkdirAll(convert_path, os.ModePerm)
 	if err_convert_path != nil {
 		log.Fatal("Error creating converting images folder \n", err_convert_path)
 	}
-	convert_path += file_path[len(file_path)-1] // New path with old file
 
-	path_format := strings.SplitAfter(convert_path, ".")
-	var new_path string
-	for i := 0; i < len(path_format)-1; i++ {
-		new_path += path_format[i]
-	}
-	new_path += format // New path with new file
+	// Get the file without its extension and create a new path
+	filename_without_ext := strings.TrimSuffix(file, filepath.Ext(file))
+	new_path := filepath.Join(convert_path, filename_without_ext+"."+format)
 
-	// * Check if the format is an image format
-	if path_format[len(path_format)-1] == "png" || path_format[len(path_format)-1] == "jpg" || path_format[len(path_format)-1] == "webp" || path_format[len(path_format)-1] == "jpeg" {
-		// * Check if the file format is the same as the converted one
-		if path_format[len(path_format)-1] != format {
-
-			// * Convertion
+	if filepath.Ext(path) == ".png" || filepath.Ext(path) == ".jpg" || filepath.Ext(path) == ".webp" || filepath.Ext(path) == ".jpeg" {
+		// Check image format and convert
+		if filepath.Ext(path) != "."+format {
+			// Convertion
 			if format == "png" {
 				err := ffmpeg.Input(path).Output(new_path, ffmpeg.KwArgs{"loglevel": "panic"}).OverWriteOutput().ErrorToStdOut().Run()
 				if err != nil {
@@ -50,23 +44,20 @@ func ConvertImage(path string, format string) string {
 				}
 			}
 
-			// * Remove the original file
-			if err := os.Remove(path); err != nil {
+			// Remove the original file
+			err_remove := os.Remove(path)
+			if err_remove != nil {
+				log.Fatal("Error removing original file: ", err_remove)
 			}
-			// TODO: Remove the println
 			return new_path
+		}
 
-		} else {
-			// * Move original file to images
-			if err := os.Rename(path, convert_path); err != nil {
-			}
-			return convert_path
+		// Move original file to Images folder if no conversion needed
+		err_rename := os.Rename(path, filepath.Join(convert_path, file))
+		if err_rename != nil {
+			log.Fatal("Error moving original file: ", err_rename)
 		}
-	} else if path_format[len(path_format)-1] == "gif" {
-		if err := os.Rename(path, convert_path); err != nil {
-		}
-		return convert_path
-	} else {
-		return ""
+		return filepath.Join(convert_path, file)
 	}
+	return ""
 }

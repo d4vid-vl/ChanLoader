@@ -1,8 +1,8 @@
 package custom
 
 import (
-	"fmt"
 	"math/rand"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -41,15 +41,13 @@ func NameFiles(path string, url string, nameformat string, id string, time int) 
 			name += file_split[len(file_split)-1]
 		}
 
-		new_path := path + name + url_split[len(url_split)-1]
+		new_path := filepath.Join(path, name+url_split[len(url_split)-1])
 		working_url := "https:" + url
 
 		r, _ := req.Get(working_url, req.DownloadProgress(progress))
 		r.ToFile(new_path)
-		fmt.Println("File saved in: " + new_path)
 		return new_path
 	} else {
-		fmt.Println("No media found in post: " + id)
 		return "No media found in post: " + id
 	}
 }
