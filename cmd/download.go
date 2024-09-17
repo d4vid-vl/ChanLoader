@@ -118,20 +118,16 @@ func download(cmd *cobra.Command, args []string) {
 
 	split_url := strings.Split(cfg.Url, "/")
 
-	fmt.Println(split_url)
 	// ! Save Board and Thread ID info
 	var domain string
 	for i := 0; i < len(split_url)-1; i++ {
 		check := split_url[i]
 		if check == "https:" {
 			domain = split_url[i+2]
-			fmt.Println(domain)
 		} else if check == domain {
 			cfg.Board = split_url[i+1]
-			fmt.Println(cfg.Board)
 		} else if check == "thread" {
 			cfg.ThreadID = split_url[i+1]
-			fmt.Println(cfg.ThreadID)
 		} else {
 			continue
 		}
@@ -165,7 +161,7 @@ func download(cmd *cobra.Command, args []string) {
 
 	// * Scraping state
 	var files []string
-	for i := 0; i < len(posts)-1; i++ {
+	for i := 0; i < len(posts); i++ {
 		post := posts[i]
 		file := custom.NameFiles(thread_path, post.Media, config.Name.String(), post.PostID, i+1)
 		files = append(files, file)
@@ -177,13 +173,11 @@ func download(cmd *cobra.Command, args []string) {
 	for i := 0; i < len(files); i++ {
 		file := files[i]
 		if strings.Contains(file, "No media found in post:") {
-			i++
-		} else if file == "" {
-			i++
+			continue
 		} else {
 			image := custom.ConvertImage(file, config.IExtension.String())
 			if image == "" {
-				i++
+				continue
 			}
 			images = append(images, image)
 		}
@@ -192,11 +186,11 @@ func download(cmd *cobra.Command, args []string) {
 	for i := 0; i < len(files); i++ {
 		file := files[i]
 		if strings.Contains(file, "No media found in post:") {
-			i++
+			continue
 		} else {
 			video := custom.ConvertVideo(file, config.VExtension.String())
 			if video == "" {
-				i++
+				continue
 			}
 			videos = append(videos, video)
 		}
