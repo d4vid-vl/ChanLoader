@@ -51,7 +51,14 @@ func ConvertImage(path string, format string) string {
 			}
 			return new_path
 		}
+		// Move original file to Images folder if no conversion needed
+		err_rename := os.Rename(path, filepath.Join(convert_path, file))
+		if err_rename != nil {
+			log.Fatal("Error moving original file: ", err_rename)
+		}
+		return filepath.Join(convert_path, file)
 
+	} else if filepath.Ext(path) == ".gif" {
 		// Move original file to Images folder if no conversion needed
 		err_rename := os.Rename(path, filepath.Join(convert_path, file))
 		if err_rename != nil {
